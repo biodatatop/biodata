@@ -47,7 +47,7 @@ export async function onRequest(context) {
 
     const bio =
       profile.bio ||
-      "BeeLinks";
+      "Biodata";
 
     const avatar =
       profile.avatar ||
