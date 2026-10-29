@@ -263,12 +263,39 @@ ${JSON.stringify({
       Pisahkan setelah field avatar API diketahui.
     -->
 
-    <img
-      class="profile-avatar"
-      src="${escapeHtml(image)}"
-      alt="${escapeHtml(displayName)}"
-      loading="eager"
-      decoding="async">
+<div class="profile-avatar">
+  ${escapeHtml(
+    (displayName || "?")
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(word => word.charAt(0).toUpperCase())
+      .join("")
+  )}
+</div>
+
+<style>
+.profile-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto 8px;
+
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  object-fit: unset;
+}
+</style>
+
 
     <h1 class="profile-name">
       ${escapeHtml(displayName)}
