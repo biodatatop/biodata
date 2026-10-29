@@ -1,16 +1,12 @@
+
 import { getApiBase } from "./_shared/config.js";
 
 export async function onRequest(context) {
+  const url = new URL(context.request.url);
 
-  const url =
-    new URL(
-      context.request.url
-    );
-
-  const path =
-    url.pathname
-      .replace(/^\/+/, "")
-      .toLowerCase();
+  const path = url.pathname
+    .replace(/^\/+/, "")
+    .toLowerCase();
 
   const apiBase = await getApiBase(context);
 
@@ -18,18 +14,10 @@ export async function onRequest(context) {
   // REDIRECT LINK
   // =========================
 
-  if (
-    url.pathname.startsWith("/r/")
-  ) {
-
-    return fetch(
-      apiBase +
-      url.pathname,
-      {
-        redirect: "manual"
-      }
-    );
-
+  if (url.pathname.startsWith("/r/")) {
+    return fetch(apiBase + url.pathname, {
+      redirect: "manual"
+    });
   }
 
   // =========================
@@ -45,148 +33,98 @@ export async function onRequest(context) {
     path.startsWith("amp/") ||
     path.startsWith("og/")
   ) {
-
-    return context.env.ASSETS.fetch(
-      context.request
-    );
-
+    return context.env.ASSETS.fetch(context.request);
   }
 
   const reserved = [
-
     "",
-
     "login",
-
     "register",
-
     "dashboard",
     "privacy",
     "og",
-     "amp",
+    "amp",
     "sitemap-users.xml",
     "profile"
-
   ];
 
   // =========================
   // PUBLIC PROFILE
   // =========================
 
-  if (
-    path &&
-    !reserved.includes(path)
-  ) {
-
+  if (path && !reserved.includes(path)) {
     try {
-
-      const api =
-        await fetch(
-          `${apiBase}/${path}`
-        );
+      const api = await fetch(`${apiBase}/${path}`);
 
       if (!api.ok) {
-
-        return new Response(
-          notFoundHtml(),
-          {
-            status: 404,
-            headers: {
-              "Content-Type":
-                "text/html;charset=UTF-8"
-            }
-          }
-        );
-
-      }
-
-      const profile =
-        await api.json();
-
-      return new Response(
-        profileHtml(
-          profile,
-          url
-        ),
-        {
-          headers: {
-            "Content-Type":
-              "text/html;charset=UTF-8"
-          }
-        }
-      );
-
-    } catch {
-
-      return new Response(
-        notFoundHtml(),
-        {
+        return new Response(notFoundHtml(), {
           status: 404,
           headers: {
-            "Content-Type":
-              "text/html;charset=UTF-8"
+            "Content-Type": "text/html;charset=UTF-8"
+          }
+        });
+      }
+
+      const profile = await api.json();
+
+      return new Response(
+        profileHtml(profile, url, apiBase),
+        {
+          headers: {
+            "Content-Type": "text/html;charset=UTF-8"
           }
         }
       );
-
+    } catch {
+      return new Response(notFoundHtml(), {
+        status: 404,
+        headers: {
+          "Content-Type": "text/html;charset=UTF-8"
+        }
+      });
     }
-
   }
 
   // =========================
   // DEFAULT
   // =========================
 
-  return context.env.ASSETS.fetch(
-    context.request
-  );
-
+  return context.env.ASSETS.fetch(context.request);
 }
 
-function profileHtml(
-  profile,
-  url
-) {
-
+function profileHtml(profile, url, apiBase) {
   const title =
     `${profile.name || profile.username} | Biodata`;
 
   const description =
     profile.bio ||
-    `Lihat semua link ${
-      profile.name ||
-      profile.username
-    }`;
+    `Lihat semua link ${profile.name || profile.username}`;
 
+  // Gambar untuk Open Graph dan media sosial
+  const image = `${url.origin}/og/${profile.username}`;
 
-  
-  const image =
-  `${url.origin}/og/${profile.username}`;
+  // Avatar mengikuti pendekatan dashboard
+  const avatar =
+    profile.avatar && profile.avatar.trim()
+      ? profile.avatar.trim()
+      : `${apiBase}/avatar/${encodeURIComponent(profile.username)}`;
 
-const theme =
-  profile.theme ||
-  "default";
-  
-  const links =
-    (profile.links || [])
-      .filter(
-        link =>
-          link.active !== false
-      )
-      .map(
-        link => `
+  const theme = profile.theme || "default";
+
+  const links = (profile.links || [])
+    .filter(link => link.active !== false)
+    .map(link => `
 <a
 class="profile-link"
-href="/r/${profile.username}/${link.id}"
+href="/r/${encodeURIComponent(profile.username)}/${encodeURIComponent(link.id)}"
 target="_blank"
 rel="noopener noreferrer">
 
 ${escapeHtml(link.title)}
 
 </a>
-`
-      )
-      .join("");
+`)
+    .join("");
 
   return `
 <!DOCTYPE html>
@@ -225,11 +163,11 @@ content="${escapeHtml(description)}">
 
 <meta
 property="og:image"
-content="${image}">
+content="${escapeHtml(image)}">
 
 <meta
 property="og:url"
-content="${url.href}">
+content="${escapeHtml(url.href)}">
 
 <meta
 name="twitter:card"
@@ -245,11 +183,11 @@ content="${escapeHtml(description)}">
 
 <meta
 name="twitter:image"
-content="${image}">
+content="${escapeHtml(image)}">
 
 <link
 rel="canonical"
-href="${url.href}">
+href="${escapeHtml(url.href)}">
 
 <link
 rel="stylesheet"
@@ -257,7 +195,7 @@ href="/css/profile.css">
 
 <link
 rel="stylesheet"
-href="/css/themes/profile-${theme}.css">
+href="/css/themes/profile-${escapeHtml(theme)}.css">
 
 <script type="application/ld+json">
 {
@@ -265,8 +203,8 @@ href="/css/themes/profile-${theme}.css">
   "@type":"ProfilePage",
   "name":"${escapeHtml(profile.name || profile.username)}",
   "description":"${escapeHtml(description)}",
-  "url":"${url.href}",
-  "image":"${image}"
+  "url":"${escapeHtml(url.href)}",
+  "image":"${escapeHtml(image)}"
 }
 </script>
 
@@ -280,43 +218,25 @@ href="/css/themes/profile-${theme}.css">
 
 <img
 class="profile-avatar"
-src="${image}"
-alt="${escapeHtml(
-  profile.name ||
-  profile.username
-)}"
+src="${escapeHtml(avatar)}"
+alt="${escapeHtml(profile.name || profile.username)}"
 loading="eager">
 
-<h1
-class="profile-name">
-
-${escapeHtml(
-  profile.name ||
-  profile.username
-)}
-
+<h1 class="profile-name">
+${escapeHtml(profile.name || profile.username)}
 </h1>
 
-<p
-class="profile-bio">
-
-${escapeHtml(
-  profile.bio || ""
-)}
-
+<p class="profile-bio">
+${escapeHtml(profile.bio || "")}
 </p>
 
 </div>
 
-<div
-class="profile-links">
-
+<div class="profile-links">
 ${links}
-
 </div>
 
-<footer
-class="profile-footer">
+<footer class="profile-footer">
 
 <a
 href="/"
@@ -334,43 +254,31 @@ Buat Halaman Seperti Ini
 
 </html>
 `;
-
 }
 
 function notFoundHtml() {
-
   return `
 <!DOCTYPE html>
 
 <html lang="id">
 
 <head>
-
 <meta charset="UTF-8">
-
-<title>
-Profil Tidak Ditemukan
-</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Profil Tidak Ditemukan</title>
 </head>
 
 <body>
 
 <main class="not-found">
 
-<h1>
-404
-</h1>
+<h1>404</h1>
 
-<p>
-Profil tidak ditemukan.
-</p>
+<p>Profil tidak ditemukan.</p>
 
 <br>
 
-<a href="/">
-Kembali ke Beranda
-</a>
+<a href="/">Kembali ke Beranda</a>
 
 </main>
 
@@ -378,18 +286,13 @@ Kembali ke Beranda
 
 </html>
 `;
-
 }
 
-function escapeHtml(
-  text = ""
-) {
-
+function escapeHtml(text = "") {
   return String(text)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
-
 }
