@@ -1,27 +1,35 @@
 <!DOCTYPE html>
-
 <html lang="id">
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Dashboard - Biodata</title>
+<title>Dashboard | Biodata</title>
 
-<meta name="description"
-content="Kelola profil dan link Biodata Anda.">
+<meta
+name="description"
+content="Kelola profil, avatar, dan semua link Biodata Anda dari dashboard.">
+
+<meta
+name="robots"
+content="noindex,nofollow">
+
+<link
+rel="icon"
+href="/assets/favicon.svg">
 
 <link
 rel="stylesheet"
 href="/css/style.css">
 
+<link
+rel="stylesheet"
+href="/css/dashboard.css">
+
 </head>
 <body>
-<script>
-if (!localStorage.getItem("token")) {
-  location.href = "/login.html";
-}
-</script>
+
 <header class="site-header">
 
 <div class="container">
@@ -31,19 +39,30 @@ if (!localStorage.getItem("token")) {
 <a
 href="/"
 class="logo">
-Biodata </a>
+
+Biodata
+
+</a>
 
 <div class="header-actions">
 
 <button
+type="button"
 class="btn btn-secondary"
 onclick="openProfile()">
-Lihat Profil </button>
+
+Lihat Profil
+
+</button>
 
 <button
+type="button"
 class="btn btn-primary"
 onclick="logout()">
-Logout </button>
+
+Logout
+
+</button>
 
 </div>
 
@@ -63,23 +82,67 @@ Logout </button>
 
 <aside class="sidebar">
 
-<h3 class="section-title">
-Profil Saya
+<div class="profile-card">
+
+<img
+id="avatar-preview"
+class="avatar-preview"
+src="/assets/avatar-default.svg"
+alt="Avatar">
+
+<h3
+id="profile-name-preview">
+
+Memuat...
+
 </h3>
 
-<p>
-Kelola informasi profil publik Anda.
+<p id="sidebar-username">
+
+@username
+
 </p>
 
-<br>
+<p id="profile-bio-preview"></p>
+
+<div id="profile-links-preview"></div>
+  
+</div>
+
+<div class="stats-box">
+
+<div>
+
+Total Link:
+<strong id="total-links">
+0
+</strong>
+
+</div>
+
+</div>
+
+<div class="sidebar-actions">
 
 <button
+type="button"
 class="btn btn-block btn-secondary"
 onclick="copyMyProfile()">
 
 Salin Link Profil
 
 </button>
+
+<button
+type="button"
+class="btn btn-block btn-primary"
+onclick="openProfile()">
+
+Buka Profil
+
+</button>
+
+</div>
 
 </aside>
 
@@ -95,7 +158,7 @@ Pengaturan Profil
 
 <div class="form-group">
 
-<label>
+<label for="profile-name">
 Nama
 </label>
 
@@ -108,22 +171,21 @@ placeholder="Nama Anda">
 
 <div class="form-group">
 
-<label>
+<label for="profile-bio">
 Bio
 </label>
 
 <textarea
 id="profile-bio"
 rows="4"
-placeholder="Tulis bio singkat">
-</textarea>
+placeholder="Tulis bio singkat"></textarea>
 
 </div>
 
 <div class="form-group">
 
-<label>
-Avatar URL
+<label for="profile-avatar">
+Avatar URL (Opsional)
 </label>
 
 <input
@@ -131,9 +193,65 @@ type="url"
 id="profile-avatar"
 placeholder="https://...">
 
+<small>
+
+Kosongkan untuk menggunakan avatar otomatis Biodata.
+
+</small>
+
 </div>
 
+
+  <div class="form-group">
+
+<label for="profile-theme">
+Theme
+</label>
+
+<select id="profile-theme">
+
+<option value="default">
+  Default
+</option>
+
+<option value="glass">
+  Glass
+</option>
+
+<option value="minimal">
+  Minimal
+</option>
+
+<option value="neon">
+  Neon
+</option>
+
+<option value="card">
+  Card
+</option>
+
+<option value="premium">
+  Premium
+</option>
+
+<option value="social">
+  Social
+</option>
+  
+</select>
+
+<small>
+
+Pilih tampilan profil publik Anda.
+
+</small>
+
+</div>
+  
+
+  
 <button
+type="button"
 class="btn btn-primary"
 onclick="saveProfile()">
 
@@ -141,7 +259,7 @@ Simpan Profil
 
 </button>
 
-<hr style="margin:30px 0">
+<hr>
 
 <h2 class="section-title">
 
@@ -151,7 +269,7 @@ Tambah Link
 
 <div class="form-group">
 
-<label>
+<label for="link-title">
 Judul Link
 </label>
 
@@ -164,7 +282,7 @@ placeholder="Instagram">
 
 <div class="form-group">
 
-<label>
+<label for="link-url">
 URL
 </label>
 
@@ -176,6 +294,7 @@ placeholder="https://">
 </div>
 
 <button
+type="button"
 class="btn btn-primary"
 onclick="addNewLink()">
 
@@ -183,7 +302,7 @@ Tambah Link
 
 </button>
 
-<hr style="margin:30px 0">
+<hr>
 
 <h2 class="section-title">
 
@@ -191,8 +310,7 @@ Daftar Link
 
 </h2>
 
-<div
-id="links-list">
+<div id="links-list">
 
 <p>
 Memuat data...
@@ -209,9 +327,7 @@ Memuat data...
 </main>
 
 <script src="/js/api.js"></script>
-
 <script src="/js/auth.js"></script>
-
 <script src="/js/dashboard.js"></script>
 
 </body>
