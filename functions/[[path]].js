@@ -19,7 +19,7 @@ export async function onRequest(context) {
   ) {
 
     return fetch(
-      "https://api-biolink.lebahhack.workers.dev" +
+      "https://api-biodata.biodata.workers.dev" +
       url.pathname,
       {
         redirect: "manual"
