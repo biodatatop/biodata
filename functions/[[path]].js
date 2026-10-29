@@ -158,6 +158,11 @@ function profileHtml(
       profile.username
     }`;
 
+
+  const avatar =
+  profile.avatar ||
+  `${context.env.API_BASE}/avatar/${profile.username}`;
+  
   const image =
   `${url.origin}/og/${profile.username}`;
 
