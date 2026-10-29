@@ -1,23 +1,41 @@
-
 import { getApiBase } from "./_shared/config.js";
 
 export async function onRequest(context) {
-  const url = new URL(context.request.url);
 
-  const path = url.pathname
-    .replace(/^\/+/, "")
-    .toLowerCase();
+  const url =
+    new URL(
+      context.request.url
+    );
+
+  const path =
+    url.pathname
+      .replace(/^\/+/, "")
+      .toLowerCase();
 
   const apiBase = await getApiBase(context);
 
+  // =========================
   // REDIRECT LINK
-  if (url.pathname.startsWith("/r/")) {
-    return fetch(apiBase + url.pathname, {
-      redirect: "manual"
-    });
+  // =========================
+
+  if (
+    url.pathname.startsWith("/r/")
+  ) {
+
+    return fetch(
+      apiBase +
+      url.pathname,
+      {
+        redirect: "manual"
+      }
+    );
+
   }
 
+  // =========================
   // STATIC FILES
+  // =========================
+
   if (
     path.includes(".") ||
     path.startsWith("css/") ||
@@ -27,237 +45,351 @@ export async function onRequest(context) {
     path.startsWith("amp/") ||
     path.startsWith("og/")
   ) {
-    return context.env.ASSETS.fetch(context.request);
+
+    return context.env.ASSETS.fetch(
+      context.request
+    );
+
   }
 
   const reserved = [
+
     "",
+
     "login",
+
     "register",
+
     "dashboard",
     "privacy",
     "og",
-    "amp",
+     "amp",
     "sitemap-users.xml",
     "profile"
+
   ];
 
+  // =========================
   // PUBLIC PROFILE
-  if (path && !reserved.includes(path)) {
+  // =========================
+
+  if (
+    path &&
+    !reserved.includes(path)
+  ) {
+
     try {
-      const api = await fetch(`${apiBase}/${path}`);
+
+      const api =
+        await fetch(
+          `${apiBase}/${path}`
+        );
 
       if (!api.ok) {
-        return new Response(notFoundHtml(), {
-          status: 404,
-          headers: {
-            "Content-Type": "text/html;charset=UTF-8"
+
+        return new Response(
+          notFoundHtml(),
+          {
+            status: 404,
+            headers: {
+              "Content-Type":
+                "text/html;charset=UTF-8"
+            }
           }
-        });
+        );
+
       }
 
-      const profile = await api.json();
+      const profile =
+        await api.json();
 
-      return new Response(profileHtml(profile, url), {
-        headers: {
-          "Content-Type": "text/html;charset=UTF-8",
-          "X-Content-Type-Options": "nosniff"
+      return new Response(
+        profileHtml(
+          profile,
+          url
+        ),
+        {
+          headers: {
+            "Content-Type":
+              "text/html;charset=UTF-8"
+          }
         }
-      });
+      );
+
     } catch {
-      return new Response(notFoundHtml(), {
-        status: 404,
-        headers: {
-          "Content-Type": "text/html;charset=UTF-8"
+
+      return new Response(
+        notFoundHtml(),
+        {
+          status: 404,
+          headers: {
+            "Content-Type":
+              "text/html;charset=UTF-8"
+          }
         }
-      });
+      );
+
     }
+
   }
 
+  // =========================
   // DEFAULT
-  return context.env.ASSETS.fetch(context.request);
+  // =========================
+
+  return context.env.ASSETS.fetch(
+    context.request
+  );
+
 }
 
-// PROFILE HTML + SEO
-function profileHtml(profile, url) {
-  const username = profile.username || "";
-  const displayName = profile.name || username;
+function profileHtml(
+  profile,
+  url
+) {
 
-  const title = `${displayName} | Biodata`;
+  const title =
+    `${profile.name || profile.username} | Biodata`;
 
   const description =
-    profile.bio || `Lihat semua link ${displayName}`;
+    profile.bio ||
+    `Lihat semua link ${
+      profile.name ||
+      profile.username
+    }`;
 
-  // Gambar untuk preview sosial, bukan avatar profil.
+
+  
   const image =
-    `${url.origin}/og/${encodeURIComponent(username)}`;
+  `${url.origin}/og/${profile.username}`;
 
-  const theme = profile.theme || "default";
+const theme =
+  profile.theme ||
+  "default";
+  
+  const links =
+    (profile.links || [])
+      .filter(
+        link =>
+          link.active !== false
+      )
+      .map(
+        link => `
+<a
+class="profile-link"
+href="/r/${profile.username}/${link.id}"
+target="_blank"
+rel="noopener noreferrer">
 
-  // Inisial otomatis: "AI Mr Ferdy" menjadi "AM".
-  // Jika ingin dua kata pertama saja, hasilnya "AM".
-  const initials = (displayName || "?")
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map(word => word.charAt(0).toUpperCase())
-    .join("") || "?";
+${escapeHtml(link.title)}
 
-  // Gunakan URL foto hanya jika API menyediakan field profile.avatar.
-  // Tidak membuat endpoint avatar baru.
-  const avatarUrl =
-    typeof profile.avatar === "string"
-      ? profile.avatar.trim()
-      : "";
-
-  const avatarHtml = avatarUrl
-    ? `
-      <img
-        class="profile-avatar"
-        src="${escapeHtml(avatarUrl)}"
-        alt="${escapeHtml(displayName)}"
-        loading="eager"
-        decoding="async"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-
-      <div
-        class="profile-avatar profile-avatar-initials"
-        role="img"
-        aria-label="${escapeHtml(`Inisial ${displayName}`)}"
-        style="display:none">
-        ${escapeHtml(initials)}
-      </div>
-    `
-    : `
-      <div
-        class="profile-avatar profile-avatar-initials"
-        role="img"
-        aria-label="${escapeHtml(`Inisial ${displayName}`)}">
-        ${escapeHtml(initials)}
-      </div>
-    `;
-
-  const links = (profile.links || [])
-    .filter(link => link.active !== false)
-    .map(link => `
-      <a
-        class="profile-link"
-        href="/r/${encodeURIComponent(username)}/${encodeURIComponent(String(link.id))}"
-        target="_blank"
-        rel="noopener noreferrer">
-        ${escapeHtml(link.title || "")}
-      </a>
-    `)
-    .join("");
-
-  const canonical = url.href;
-
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "ProfilePage",
-    "name": displayName,
-    "description": description,
-    "url": canonical,
-    "image": image
-  };
+</a>
+`
+      )
+      .join("");
 
   return `
 <!DOCTYPE html>
+
 <html lang="id">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
 
-  <title>${escapeHtml(title)}</title>
+<meta charset="UTF-8">
 
-  <meta
-    name="description"
-    content="${escapeHtml(description)}">
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1">
 
-  <meta name="robots" content="index,follow">
+<title>${escapeHtml(title)}</title>
 
-  <link
-    rel="canonical"
-    href="${escapeHtml(canonical)}">
+<meta
+name="description"
+content="${escapeHtml(description)}">
 
-  <meta property="og:type" content="profile">
-  <meta property="og:title" content="${escapeHtml(title)}">
-  <meta property="og:description" content="${escapeHtml(description)}">
-  <meta property="og:image" content="${escapeHtml(image)}">
-  <meta property="og:url" content="${escapeHtml(canonical)}">
-  <meta property="og:site_name" content="Biodata">
+<meta
+name="robots"
+content="index,follow">
 
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="${escapeHtml(title)}">
-  <meta name="twitter:description" content="${escapeHtml(description)}">
-  <meta name="twitter:image" content="${escapeHtml(image)}">
+<meta
+property="og:type"
+content="profile">
 
-  <link rel="stylesheet" href="/css/profile.css">
-  <link
-    rel="stylesheet"
-    href="/css/themes/profile-${escapeHtml(theme)}.css">
+<meta
+property="og:title"
+content="${escapeHtml(title)}">
 
-  <script type="application/ld+json">${JSON.stringify(structuredData).replace(/</g, "\\u003c")}</script>
+<meta
+property="og:description"
+content="${escapeHtml(description)}">
+
+<meta
+property="og:image"
+content="${image}">
+
+<meta
+property="og:url"
+content="${url.href}">
+
+<meta
+name="twitter:card"
+content="summary_large_image">
+
+<meta
+name="twitter:title"
+content="${escapeHtml(title)}">
+
+<meta
+name="twitter:description"
+content="${escapeHtml(description)}">
+
+<meta
+name="twitter:image"
+content="${image}">
+
+<link
+rel="canonical"
+href="${url.href}">
+
+<link
+rel="stylesheet"
+href="/css/profile.css">
+
+<link
+rel="stylesheet"
+href="/css/themes/profile-${theme}.css">
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"ProfilePage",
+  "name":"${escapeHtml(profile.name || profile.username)}",
+  "description":"${escapeHtml(description)}",
+  "url":"${url.href}",
+  "image":"${image}"
+}
+</script>
+
 </head>
 
 <body>
-  <main class="profile">
-    <div class="profile-card">
 
-      ${avatarHtml}
+<main class="profile">
 
-      <h1 class="profile-name">
-        ${escapeHtml(displayName)}
-      </h1>
+<div class="profile-card">
 
-      <p class="profile-bio">
-        ${escapeHtml(profile.bio || "")}
-      </p>
+<img
+class="profile-avatar"
+src="${image}"
+alt="${escapeHtml(
+  profile.name ||
+  profile.username
+)}"
+loading="eager">
 
-    </div>
+<h1
+class="profile-name">
 
-    <div class="profile-links">
-      ${links}
-    </div>
+${escapeHtml(
+  profile.name ||
+  profile.username
+)}
 
-    <footer class="profile-footer">
-      <a href="/" class="btn btn-secondary">
-        Buat Halaman Seperti Ini
-      </a>
-    </footer>
-  </main>
+</h1>
+
+<p
+class="profile-bio">
+
+${escapeHtml(
+  profile.bio || ""
+)}
+
+</p>
+
+</div>
+
+<div
+class="profile-links">
+
+${links}
+
+</div>
+
+<footer
+class="profile-footer">
+
+<a
+href="/"
+class="btn btn-secondary">
+
+Buat Halaman Seperti Ini
+
+</a>
+
+</footer>
+
+</main>
+
 </body>
+
 </html>
 `;
+
 }
 
 function notFoundHtml() {
+
   return `
 <!DOCTYPE html>
+
 <html lang="id">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="robots" content="noindex,nofollow">
-  <title>Profil Tidak Ditemukan | Biodata</title>
+
+<meta charset="UTF-8">
+
+<title>
+Profil Tidak Ditemukan
+</title>
+
 </head>
+
 <body>
-  <main class="not-found">
-    <h1>404</h1>
-    <p>Profil tidak ditemukan.</p>
-    <br>
-    <a href="/">Kembali ke Beranda</a>
-  </main>
+
+<main class="not-found">
+
+<h1>
+404
+</h1>
+
+<p>
+Profil tidak ditemukan.
+</p>
+
+<br>
+
+<a href="/">
+Kembali ke Beranda
+</a>
+
+</main>
+
 </body>
+
 </html>
 `;
+
 }
 
-function escapeHtml(text = "") {
+function escapeHtml(
+  text = ""
+) {
+
   return String(text)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+
 }
