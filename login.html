@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+
+<html lang="id">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Login - Biodata</title>
+
+<meta
+name="description"
+content="Masuk ke akun Biodata untuk mengelola profil dan link Anda.">
+
+<meta
+name="robots"
+content="noindex,nofollow">
+
+<link
+rel="canonical"
+href="/login.html">
+
+<link
+rel="icon"
+href="/assets/favicon.svg">
+
+<meta
+property="og:title"
+content="Login - Biodata">
+
+<meta
+property="og:description"
+content="Masuk ke akun Biodata">
+
+<meta
+property="og:type"
+content="website">
+
+<link
+rel="stylesheet"
+href="/css/style.css">
+
+<link
+rel="stylesheet"
+href="/css/auth.css">
+
+<script>
+if(localStorage.getItem("token")){
+location.href="/dashboard.html";
+}
+</script>
+
+</head>
+
+<body class="auth-page">
+
+<div class="auth-card">
+
+<div class="auth-logo">
+Biodata
+</div>
+
+<p class="auth-subtitle">
+Masuk ke akun Anda
+</p>
+
+<form id="loginForm">
+
+<div class="form-group">
+
+<label>
+Username
+</label>
+
+<input
+type="text"
+id="username"
+required
+autocomplete="username"
+placeholder="Username">
+
+</div>
+
+<div class="form-group">
+
+<label>
+Password
+</label>
+
+<input
+type="password"
+id="password"
+required
+autocomplete="current-password"
+placeholder="Password">
+
+</div>
+
+<button
+type="submit"
+class="btn btn-primary btn-block">
+
+Masuk
+
+</button>
+
+</form>
+
+<div
+id="message"
+class="message">
+</div>
+
+<div class="auth-footer">
+
+Belum punya akun?
+
+<a href="/register.html">
+Daftar
+</a>
+
+</div>
+
+</div>
+
+<script src="/js/api-config.js"></script>
+<script src="/js/api.js"></script>
+
+<script src="/js/auth.js"></script>
+
+<script src="/js/login.js"></script>
+
+</body>
+</html>

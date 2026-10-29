@@ -1,0 +1,567 @@
+
+/* =========================
+   PROFILE PAGE
+========================= */
+
+document.addEventListener(
+  "DOMContentLoaded",
+  loadProfile
+);
+
+/* =========================
+   LOAD PROFILE
+========================= */
+
+async function loadProfile() {
+
+  try {
+
+    const username =
+      getProfileUsername();
+
+    console.log("pathname =", location.pathname);
+    console.log("username =", username);
+
+    if (!username) {
+
+      showNotFound();
+      return;
+
+    }
+
+    const profile =
+      await getProfile(username);
+
+    console.log("profile =", profile);
+
+    if (!profile) {
+
+      showNotFound();
+      return;
+
+    }
+
+    renderProfile(profile);
+
+  } catch (err) {
+
+    console.error("ERROR:", err);
+
+    showNotFound();
+
+  }
+
+}
+
+/* =========================
+   USERNAME FROM URL
+========================= */
+
+function getProfileUsername() {
+
+  // kompatibel URL lama
+  const u = new URLSearchParams(location.search)
+    .get("u");
+
+  if (u) {
+    return u.toLowerCase();
+  }
+
+  const path = location.pathname
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "")
+    .toLowerCase();
+
+  const reserved = [
+    "",
+    "login",
+    "register",
+    "dashboard",
+    "profile",
+    "profile.html",
+    "404.html",
+    "favicon.ico",
+    "robots.txt",
+    "sitemap.xml"
+  ];
+
+  if (reserved.includes(path)) {
+    return null;
+  }
+
+  return path;
+}
+
+/* =========================
+   AVATAR URL
+========================= */
+
+function avatarUrl(
+  profile
+) {
+
+  if (
+    profile.avatar &&
+    profile.avatar.trim()
+  ) {
+
+    return profile.avatar;
+
+  }
+
+  return `${window.API_BASE}/avatar/${profile.username}`;
+
+}
+
+
+
+/* =========================
+   THEME
+========================= */
+
+function loadTheme(theme) {
+
+  const themeName =
+    theme || "default";
+
+  let link =
+    document.getElementById(
+      "profile-theme-css"
+    );
+
+  if (!link) {
+
+    link =
+      document.createElement(
+        "link"
+      );
+
+    link.id =
+      "profile-theme-css";
+
+    link.rel =
+      "stylesheet";
+
+    document.head.appendChild(
+      link
+    );
+
+  }
+
+  link.href =
+    `/css/themes/profile-${themeName}.css`;
+
+}
+
+
+/* =========================
+   RENDER PROFILE
+========================= */
+
+function renderProfile(
+  profile
+) {
+
+   loadTheme(
+    profile.theme
+  );
+   
+  const avatar =
+    document.getElementById(
+      "profile-avatar"
+    );
+
+  const name =
+    document.getElementById(
+      "profile-name"
+    );
+
+  const bio =
+    document.getElementById(
+      "profile-bio"
+    );
+
+  if (avatar) {
+
+    avatar.src =
+      avatarUrl(profile);
+
+    avatar.alt =
+      profile.name ||
+      profile.username;
+
+  }
+
+  if (name) {
+
+    name.textContent =
+      profile.name ||
+      profile.username;
+
+  }
+
+  if (bio) {
+
+    bio.textContent =
+      profile.bio || "";
+
+  }
+
+  renderLinks(
+    profile
+  );
+
+  updateSEO(
+    profile
+  );
+
+}
+
+/* =========================
+   RENDER LINKS
+========================= */
+
+function renderLinks(
+  profile
+) {
+
+  const container =
+    document.getElementById(
+      "profile-links"
+    );
+
+  if (!container) return;
+
+  container.innerHTML =
+    "";
+
+  const links =
+    (profile.links || [])
+      .filter(
+        link =>
+          link.active !== false
+      );
+
+  if (!links.length) {
+
+    container.innerHTML = `
+      <p>
+        Belum ada link tersedia.
+      </p>
+    `;
+
+    return;
+
+  }
+
+  links.forEach(link => {
+
+    const a =
+      document.createElement(
+        "a"
+      );
+
+    a.className =
+      "profile-link";
+
+a.href =
+  `/r/${profile.username}/${link.id}`;
+
+    a.target =
+      "_blank";
+
+    a.rel =
+      "noopener noreferrer";
+
+    a.textContent =
+      link.title;
+
+    container.appendChild(
+      a
+    );
+
+  });
+
+}
+
+/* =========================
+   SEO
+========================= */
+
+function updateSEO(
+  profile
+) {
+
+  const title =
+    profile.name
+      ? `${profile.name} | Biodata`
+      : `${profile.username} | Biodata`;
+
+  const description =
+    profile.bio ||
+    `${profile.name || profile.username} di Biodata`;
+
+  document.title =
+    title;
+
+  updateMeta(
+    "description",
+    description
+  );
+
+  updateMetaProperty(
+    "og:title",
+    title
+  );
+
+  updateMetaProperty(
+    "og:description",
+    description
+  );
+
+  updateMetaProperty(
+    "og:image",
+    avatarUrl(profile)
+  );
+
+  updateMetaProperty(
+    "og:type",
+    "profile"
+  );
+
+  updateMetaProperty(
+    "og:url",
+    location.href
+  );
+
+  updateMeta(
+    "twitter:card",
+    "summary_large_image"
+  );
+
+  updateMeta(
+    "twitter:title",
+    title
+  );
+
+  updateMeta(
+    "twitter:description",
+    description
+  );
+
+  updateMeta(
+    "twitter:image",
+    avatarUrl(profile)
+  );
+
+  updateCanonical();
+
+  updateSchema(
+    profile,
+    description
+  );
+
+}
+
+/* =========================
+   CANONICAL
+========================= */
+
+function updateCanonical() {
+
+  let canonical =
+    document.querySelector(
+      'link[rel="canonical"]'
+    );
+
+  if (!canonical) {
+
+    canonical =
+      document.createElement(
+        "link"
+      );
+
+    canonical.rel =
+      "canonical";
+
+    document.head.appendChild(
+      canonical
+    );
+
+  }
+
+  canonical.href =
+    location.href;
+
+}
+
+/* =========================
+   JSON-LD
+========================= */
+
+function updateSchema(
+  profile,
+  description
+) {
+
+  const schema = {
+
+    "@context":
+      "https://schema.org",
+
+    "@type":
+      "ProfilePage",
+
+    name:
+      profile.name ||
+      profile.username,
+
+    description,
+
+    url:
+      location.href,
+
+    image:
+      avatarUrl(profile)
+
+  };
+
+  let script =
+    document.getElementById(
+      "profile-schema"
+    );
+
+  if (!script) {
+
+    script =
+      document.createElement(
+        "script"
+      );
+
+    script.id =
+      "profile-schema";
+
+    script.type =
+      "application/ld+json";
+
+    document.head.appendChild(
+      script
+    );
+
+  }
+
+  script.textContent =
+    JSON.stringify(schema);
+
+}
+
+/* =========================
+   META NAME
+========================= */
+
+function updateMeta(
+  name,
+  content
+) {
+
+  let tag =
+    document.querySelector(
+      `meta[name="${name}"]`
+    );
+
+  if (!tag) {
+
+    tag =
+      document.createElement(
+        "meta"
+      );
+
+    tag.setAttribute(
+      "name",
+      name
+    );
+
+    document.head.appendChild(
+      tag
+    );
+
+  }
+
+  tag.setAttribute(
+    "content",
+    content
+  );
+
+}
+
+/* =========================
+   META PROPERTY
+========================= */
+
+function updateMetaProperty(
+  property,
+  content
+) {
+
+  let tag =
+    document.querySelector(
+      `meta[property="${property}"]`
+    );
+
+  if (!tag) {
+
+    tag =
+      document.createElement(
+        "meta"
+      );
+
+    tag.setAttribute(
+      "property",
+      property
+    );
+
+    document.head.appendChild(
+      tag
+    );
+
+  }
+
+  tag.setAttribute(
+    "content",
+    content
+  );
+
+}
+
+/* =========================
+   NOT FOUND
+========================= */
+
+function showNotFound() {
+
+  document.title =
+    "Profil Tidak Ditemukan";
+
+  document.body.innerHTML = `
+
+    <main class="not-found">
+
+      <h1>
+        404
+      </h1>
+
+      <p>
+        Profil tidak ditemukan.
+      </p>
+
+      <br>
+
+      <a href="/">
+        Kembali ke Beranda
+      </a>
+
+    </main>
+
+  `;
+
+}

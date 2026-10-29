@@ -1,0 +1,23 @@
+import { getApiBase } from "./functions/_shared/config.js";
+
+// =========================
+// SITEMAP USERS
+// =========================
+
+if (
+  url.pathname === "/sitemap-users.xml"
+) {
+
+  const apiBase = await getApiBase(context);
+  const response = await fetch(`${apiBase}/sitemap-users.xml`);
+
+  return new Response(
+    await response.text(),
+    {
+      headers:{
+        "Content-Type":"application/xml"
+      }
+    }
+  );
+
+}
