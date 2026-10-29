@@ -66,7 +66,9 @@ export async function onRequest(context) {
     "login",
     "register",
     "dashboard",
-    "privacy",
+  "about",
+  "privacy",
+  "terms",
     "og",
     "amp",
     "profile"
