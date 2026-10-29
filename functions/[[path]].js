@@ -149,7 +149,7 @@ function profileHtml(
 ) {
 
   const title =
-    `${profile.name || profile.username} | BeeLinks`;
+    `${profile.name || profile.username} | Biodata`;
 
   const description =
     profile.bio ||
