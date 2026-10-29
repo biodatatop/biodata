@@ -1,23 +1,22 @@
-import { getApiBase } from "./functions/_shared/config.js";
-
 // =========================
-// SITEMAP USERS
+// SITEMAP.XML
 // =========================
+if (url.pathname === "/sitemap.xml") {
+  try {
+    const response = await fetch(`${apiBase}/sitemap.xml`);
 
-if (
-  url.pathname === "/sitemap-users.xml"
-) {
-
-  const apiBase = await getApiBase(context);
-  const response = await fetch(`${apiBase}/sitemap-users.xml`);
-
-  return new Response(
-    await response.text(),
-    {
-      headers:{
-        "Content-Type":"application/xml"
+    return new Response(response.body, {
+      status: response.status,
+      headers: {
+        "Content-Type": "application/xml; charset=utf-8"
       }
-    }
-  );
-
+    });
+  } catch {
+    return new Response("Gagal memuat sitemap.xml", {
+      status: 502,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8"
+      }
+    });
+  }
 }
