@@ -7,7 +7,7 @@ function setTitle(
 ) {
 
   document.title =
-    title || "BeeLinks";
+    title || "Biodata";
 
 }
 
@@ -235,15 +235,15 @@ function profileSEO(
 
   const title =
     profile.name
-      ? `${profile.name} | BeeLinks`
-      : `${profile.username} | BeeLinks`;
+      ? `${profile.name} | Biodata`
+      : `${profile.username} | Biodata`;
 
   const description =
     profile.bio ||
     `Lihat semua link ${
       profile.name ||
       profile.username
-    } di BeeLinks`;
+    } di Biodata`;
 
   const image =
     avatarUrl(
@@ -298,7 +298,7 @@ function profileSEO(
 function landingSEO() {
 
   const title =
-    "BeeLinks - Semua Link Anda dalam Satu Halaman";
+    "Biodata - Semua Link Anda dalam Satu Halaman";
 
   const description =
     "Buat halaman bio link gratis untuk Instagram, TikTok, WhatsApp, YouTube dan semua media sosial.";
