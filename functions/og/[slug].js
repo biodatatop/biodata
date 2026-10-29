@@ -233,7 +233,7 @@ font-size="36"
 font-weight="700"
 font-family="Arial">
 
-BeeLinks
+Biodata
 
 </text>
 
