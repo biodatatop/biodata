@@ -3,12 +3,37 @@ import { getApiBase } from "./_shared/config.js";
 
 export async function onRequest(context) {
   const url = new URL(context.request.url);
-
-  const path = url.pathname
-    .replace(/^\/+/, "")
-    .toLowerCase();
-
+  const path = url.pathname.replace(/^\/+/, "").toLowerCase();
   const apiBase = await getApiBase(context);
+
+  // =========================
+  // SITEMAP
+  // =========================
+
+  if (
+    url.pathname === "/sitemap.xml" ||
+    url.pathname === "/sitemap-users.xml"
+  ) {
+    try {
+      const sitemapUrl = `${apiBase}${url.pathname}`;
+      const response = await fetch(sitemapUrl);
+
+      return new Response(response.body, {
+        status: response.status,
+        headers: {
+          "Content-Type": "application/xml; charset=utf-8",
+          "Cache-Control": "public, max-age=300"
+        }
+      });
+    } catch {
+      return new Response("Gagal memuat sitemap", {
+        status: 502,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8"
+        }
+      });
+    }
+  }
 
   // =========================
   // REDIRECT LINK
@@ -44,7 +69,6 @@ export async function onRequest(context) {
     "privacy",
     "og",
     "amp",
-    "sitemap-users.xml",
     "profile"
   ];
 
@@ -60,26 +84,23 @@ export async function onRequest(context) {
         return new Response(notFoundHtml(), {
           status: 404,
           headers: {
-            "Content-Type": "text/html;charset=UTF-8"
+            "Content-Type": "text/html; charset=UTF-8"
           }
         });
       }
 
       const profile = await api.json();
 
-      return new Response(
-        profileHtml(profile, url, apiBase),
-        {
-          headers: {
-            "Content-Type": "text/html;charset=UTF-8"
-          }
+      return new Response(profileHtml(profile, url, apiBase), {
+        headers: {
+          "Content-Type": "text/html; charset=UTF-8"
         }
-      );
+      });
     } catch {
       return new Response(notFoundHtml(), {
         status: 404,
         headers: {
-          "Content-Type": "text/html;charset=UTF-8"
+          "Content-Type": "text/html; charset=UTF-8"
         }
       });
     }
@@ -93,17 +114,13 @@ export async function onRequest(context) {
 }
 
 function profileHtml(profile, url, apiBase) {
-  const title =
-    `${profile.name || profile.username} | Biodata`;
-
+  const title = `${profile.name || profile.username} | Biodata`;
   const description =
     profile.bio ||
     `Lihat semua link ${profile.name || profile.username}`;
 
-  // Gambar untuk Open Graph dan media sosial
   const image = `${url.origin}/og/${profile.username}`;
 
-  // Avatar mengikuti pendekatan dashboard
   const avatar =
     profile.avatar && profile.avatar.trim()
       ? profile.avatar.trim()
@@ -119,84 +136,32 @@ class="profile-link"
 href="/r/${encodeURIComponent(profile.username)}/${encodeURIComponent(link.id)}"
 target="_blank"
 rel="noopener noreferrer">
-
 ${escapeHtml(link.title)}
-
 </a>
 `)
     .join("");
 
   return `
 <!DOCTYPE html>
-
 <html lang="id">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-name="viewport"
-content="width=device-width,initial-scale=1">
-
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escapeHtml(title)}</title>
-
-<meta
-name="description"
-content="${escapeHtml(description)}">
-
-<meta
-name="robots"
-content="index,follow">
-
-<meta
-property="og:type"
-content="profile">
-
-<meta
-property="og:title"
-content="${escapeHtml(title)}">
-
-<meta
-property="og:description"
-content="${escapeHtml(description)}">
-
-<meta
-property="og:image"
-content="${escapeHtml(image)}">
-
-<meta
-property="og:url"
-content="${escapeHtml(url.href)}">
-
-<meta
-name="twitter:card"
-content="summary_large_image">
-
-<meta
-name="twitter:title"
-content="${escapeHtml(title)}">
-
-<meta
-name="twitter:description"
-content="${escapeHtml(description)}">
-
-<meta
-name="twitter:image"
-content="${escapeHtml(image)}">
-
-<link
-rel="canonical"
-href="${escapeHtml(url.href)}">
-
-<link
-rel="stylesheet"
-href="/css/profile.css">
-
-<link
-rel="stylesheet"
-href="/css/themes/profile-${escapeHtml(theme)}.css">
-
+<meta name="description" content="${escapeHtml(description)}">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="profile">
+<meta property="og:title" content="${escapeHtml(title)}">
+<meta property="og:description" content="${escapeHtml(description)}">
+<meta property="og:image" content="${escapeHtml(image)}">
+<meta property="og:url" content="${escapeHtml(url.href)}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${escapeHtml(title)}">
+<meta name="twitter:description" content="${escapeHtml(description)}">
+<meta name="twitter:image" content="${escapeHtml(image)}">
+<link rel="canonical" href="${escapeHtml(url.href)}">
+<link rel="stylesheet" href="/css/profile.css">
+<link rel="stylesheet" href="/css/themes/profile-${escapeHtml(theme)}.css">
 <script type="application/ld+json">
 {
   "@context":"https://schema.org",
@@ -207,51 +172,26 @@ href="/css/themes/profile-${escapeHtml(theme)}.css">
   "image":"${escapeHtml(image)}"
 }
 </script>
-
 </head>
-
 <body>
-
 <main class="profile">
-
 <div class="profile-card">
-
 <img
 class="profile-avatar"
 src="${escapeHtml(avatar)}"
 alt="${escapeHtml(profile.name || profile.username)}"
 loading="eager">
-
 <h1 class="profile-name">
 ${escapeHtml(profile.name || profile.username)}
 </h1>
-
-<p class="profile-bio">
-${escapeHtml(profile.bio || "")}
-</p>
-
+<p class="profile-bio">${escapeHtml(profile.bio || "")}</p>
 </div>
-
-<div class="profile-links">
-${links}
-</div>
-
+<div class="profile-links">${links}</div>
 <footer class="profile-footer">
-
-<a
-href="/"
-class="btn btn-secondary">
-
-Buat Halaman Seperti Ini
-
-</a>
-
+<a href="/" class="btn btn-secondary">Buat Halaman Seperti Ini</a>
 </footer>
-
 </main>
-
 </body>
-
 </html>
 `;
 }
@@ -259,31 +199,20 @@ Buat Halaman Seperti Ini
 function notFoundHtml() {
   return `
 <!DOCTYPE html>
-
 <html lang="id">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Profil Tidak Ditemukan</title>
 </head>
-
 <body>
-
 <main class="not-found">
-
 <h1>404</h1>
-
 <p>Profil tidak ditemukan.</p>
-
 <br>
-
 <a href="/">Kembali ke Beranda</a>
-
 </main>
-
 </body>
-
 </html>
 `;
 }
