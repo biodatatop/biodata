@@ -1,85 +1,126 @@
+
 /* =========================
    GLASS THEME
 ========================= */
 
-body{
-background:
-linear-gradient(
-135deg,
-#667eea 0%,
-#764ba2 100%
-);
-color:#ffffff;
-min-height:100vh;
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  min-height: 100vh;
 }
 
 /* =========================
    PROFILE CARD
 ========================= */
 
-.profile-card{
-padding:24px;
-border-radius:24px;
-background:rgba(255,255,255,.12);
-backdrop-filter:blur(20px);
--webkit-backdrop-filter:blur(20px);
-border:1px solid rgba(255,255,255,.15);
-box-shadow:
-0 8px 32px rgba(0,0,0,.15);
+.profile-card {
+  padding: 24px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
-.profile-avatar{
-border-color:
-rgba(255,255,255,.3);
-background:
-rgba(255,255,255,.2);
+/* =========================
+   PROFILE AVATAR
+========================= */
+
+.profile-avatar {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
 }
 
-.profile-name{
-color:#ffffff;
+/* Inisial avatar: gunakan class yang sama */
+span.profile-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  background:
+    radial-gradient(
+      circle at 28% 20%,
+      rgba(255, 255, 255, 0.65),
+      transparent 42%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.32),
+      rgba(255, 255, 255, 0.07)
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: #ffffff;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 12px rgba(30, 20, 80, 0.3);
+
+  box-shadow:
+    0 8px 28px rgba(25, 15, 70, 0.22),
+    0 0 0 5px rgba(255, 255, 255, 0.08),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
 }
 
-.profile-bio{
-color:
-rgba(255,255,255,.85);
+.profile-name {
+  color: #ffffff;
+}
+
+.profile-bio {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* =========================
    LINKS
 ========================= */
 
-.profile-link{
-background:
-rgba(255,255,255,.15);
-border-color:
-rgba(255,255,255,.2);
-color:#ffffff;
-backdrop-filter:blur(12px);
--webkit-backdrop-filter:blur(12px);
+.profile-link {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-.profile-link:hover{
-border-color:
-rgba(255,255,255,.4);
-background:
-rgba(255,255,255,.22);
-box-shadow:
-0 8px 24px rgba(0,0,0,.18);
+.profile-link:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.22);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
 }
 
 /* =========================
    EMPTY STATE
 ========================= */
 
-.profile-links p{
-color:
-rgba(255,255,255,.8);
+.profile-links p {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 /* =========================
    VERIFIED BADGE
 ========================= */
 
-.verified-badge{
-color:#ffffff;
+.verified-badge {
+  color: #ffffff;
+}
+
+/* =========================
+   RESPONSIVE AVATAR
+========================= */
+
+@media (max-width: 768px) {
+  span.profile-avatar {
+    font-size: 31px;
+  }
+}
+
+@media (max-width: 480px) {
+  span.profile-avatar {
+    font-size: 27px;
+    letter-spacing: 1px;
+  }
 }
