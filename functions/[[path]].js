@@ -158,10 +158,11 @@ function profileHtml(
       profile.username
     }`;
 
+const image =
+  `${url.origin}/og/${encodeURIComponent(profile.username)}`;
 
-  
-  const image =
-  `${url.origin}/og/${profile.username}`;
+const avatar =
+  profile.avatar || "/assets/avatar.png";
 
 const theme =
   profile.theme ||
@@ -280,7 +281,7 @@ href="/css/themes/profile-${theme}.css">
 
 <img
 class="profile-avatar"
-src="${image}"
+src="${escapeHtml(avatar)}"
 alt="${escapeHtml(
   profile.name ||
   profile.username
