@@ -57,24 +57,16 @@ export async function onRequest(context) {
       profile.theme ||
       "default";
 
-    const themes = {
 
-      default:
-        ["#f59e0b", "#111827"],
+const themes = {
+  default: ["#f59e0b", "#111827"],
+  dark:    ["#374151", "#000000"],
+  neon:    ["#22c55e", "#111827"],
+  pink:    ["#ec4899", "#831843"],
+  blue:    ["#06b6d4", "#0f172a"],
+  purple:  ["#a855f7", "#312e81"]
+};
 
-      dark:
-        ["#111827", "#000000"],
-
-      neon:
-        ["#22c55e", "#111827"],
-
-      pink:
-        ["#ec4899", "#111827"],
-
-      blue:
-        ["#06b6d4", "#0f172a"]
-
-    };
 
     const [
       color1,
