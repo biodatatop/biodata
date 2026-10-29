@@ -1,5 +1,5 @@
 const API_BASE =
-"https://api-biodata.biodata.workers.dev";
+"https://api-biolink.lebahhack.workers.dev";
 
 /* =========================
    STORAGE
