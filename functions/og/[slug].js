@@ -20,7 +20,7 @@ export async function onRequest(context) {
 
     const response =
       await fetch(
-        `https://api-biolink.lebahhack.workers.dev/${slug}`
+        `https://api-biodata.biodata.workers.dev/${slug}`
       );
 
     if (!response.ok) {
