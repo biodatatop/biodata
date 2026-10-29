@@ -78,7 +78,7 @@ export async function onRequest(context) {
 
       const api =
         await fetch(
-          `https://api-biolink.lebahhack.workers.dev/${path}`
+          `https://api-biodata.biodata.workers.dev/${path}`
         );
 
       if (!api.ok) {
