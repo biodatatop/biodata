@@ -294,12 +294,12 @@ function updateSEO(
 
   const title =
     profile.name
-      ? `${profile.name} | BeeLinks`
-      : `${profile.username} | BeeLinks`;
+      ? `${profile.name} | Biodata`
+      : `${profile.username} | Biodata`;
 
   const description =
     profile.bio ||
-    `${profile.name || profile.username} di BeeLinks`;
+    `${profile.name || profile.username} di Biodata`;
 
   document.title =
     title;
