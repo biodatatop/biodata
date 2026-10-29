@@ -162,16 +162,24 @@ ${escapeHtml(link.title)}
 <link rel="canonical" href="${escapeHtml(url.href)}">
 <link rel="stylesheet" href="/css/profile.css">
 <link rel="stylesheet" href="/css/themes/profile-${escapeHtml(theme)}.css">
+
 <script type="application/ld+json">
 {
-  "@context":"https://schema.org",
-  "@type":"ProfilePage",
-  "name":"${escapeHtml(profile.name || profile.username)}",
-  "description":"${escapeHtml(description)}",
-  "url":"${escapeHtml(url.href)}",
-  "image":"${escapeHtml(image)}"
+  "@context": "https://schema.org",
+  "@type": "ProfilePage",
+  "name": "${escapeHtml(profile.name || profile.username)}",
+  "description": "${escapeHtml(description)}",
+  "url": "${escapeHtml(url.href)}",
+  "mainEntity": {
+    "@type": "Person",
+    "name": "${escapeHtml(profile.name || profile.username)}",
+    "url": "${escapeHtml(url.href)}",
+    "image": "${escapeHtml(image)}",
+    "description": "${escapeHtml(description)}"
+  }
 }
 </script>
+
 </head>
 <body>
 <main class="profile">
