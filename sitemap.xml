@@ -1,22 +1,15 @@
-// =========================
-// SITEMAP.XML
-// =========================
-if (url.pathname === "/sitemap.xml") {
-  try {
-    const response = await fetch(`${apiBase}/sitemap.xml`);
-
-    return new Response(response.body, {
-      status: response.status,
-      headers: {
-        "Content-Type": "application/xml; charset=utf-8"
-      }
-    });
-  } catch {
-    return new Response("Gagal memuat sitemap.xml", {
-      status: 502,
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8"
-      }
-    });
-  }
-}
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://biodata.top/</loc>
+  </url>
+  <url>
+    <loc>https://biodata.top/about.html</loc>
+  </url>
+  <url>
+    <loc>https://biodata.top/privacy</loc>
+  </url>
+  <url>
+    <loc>https://biodata.top/terms.html</loc>
+  </url>
+</urlset>
